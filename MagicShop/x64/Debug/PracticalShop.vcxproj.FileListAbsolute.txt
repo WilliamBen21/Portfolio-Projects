@@ -1,0 +1,3 @@
+C:\Users\sgtra\Desktop\Programming 1\Labs\CPP\PracticalShop\x64\Debug\PracticalShop.exe
+C:\Users\sgtra\Desktop\Programming 1\Labs\CPP\PracticalShop - Solution\x64\Debug\PracticalShop.exe
+C:\Users\willi\Downloads\PracticalShop (1)\PracticalShop\x64\Debug\PracticalShop.exe
