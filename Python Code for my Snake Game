@@ -1,0 +1,297 @@
+from tkinter import *
+import random
+from tkinter import Canvas, ttk
+import sys
+import tkinter as tk
+import time
+
+import pygame
+pygame.init()
+
+# Game Constants
+
+GAME_WIDTH: int =850
+GAME_HEIGHT: int =700
+game_speed: int = 100
+SPACE_SIZE: int = 15
+BODY_PARTS: int = 1
+SNAKE_COLOR = "#AC94F4"
+FOOD_COLOR = "red" #"#F5AE52"
+BACKGROUND_COLOR = "#000000"
+
+import tkinter
+
+Freq = 2500
+Dur = 150
+
+top = tkinter.Tk()
+top.title('Snake Game')
+top.geometry('500x500')  # Size 200, 200
+
+
+def stop():
+    print("Thank you for playing!")
+    top.destroy()
+    sys.exit()
+
+
+def start():
+    print("Stop")
+    top.destroy()
+
+
+startButton = tkinter.Button(top, height=2, width=20, text="Start", command=start, bg="#AC94F4", fg="white")
+stopButton = tkinter.Button(top, height=2, width=20, text="Stop", command=stop, bg="#000000", fg="white")
+
+startButton.pack()
+stopButton.pack()
+top.mainloop()
+
+
+class Snake:
+
+    def __init__(self):
+        self.body_size = BODY_PARTS
+        self.coordinates = []
+        self.squares = []
+
+        for i in range(0, BODY_PARTS):
+            self.coordinates.append([0, 0])
+
+            for x, y in self.coordinates:
+                square = canvas.create_rectangle(x, y, x + SPACE_SIZE, y + SPACE_SIZE, fill=SNAKE_COLOR, tag="snake")
+                self.squares.append(square)
+
+
+class Food:
+
+    def __init__(self):
+        x = random.randint(0, (GAME_WIDTH // SPACE_SIZE) - 1) * SPACE_SIZE
+        y = random.randint(0, (GAME_HEIGHT // SPACE_SIZE) - 1) * SPACE_SIZE
+
+        self.coordinates = [x, y]
+
+        canvas.create_oval(x, y, x + SPACE_SIZE, y + SPACE_SIZE, fill=FOOD_COLOR, tag="food")
+
+
+def create_game_menu():
+    menu = Menu(window)
+    window.config(menu=menu)
+
+    game_menu = Menu(menu)
+    menu.add_cascade(label="Game", menu=game_menu)
+    game_menu.add_command(label="Start", command=start_game)
+    game_menu.add_command(label="Pause", command=pause_game)
+    game_menu.add_separator()
+    game_menu.add_command(label="Quit", command=window.quit)
+
+
+def restart_game():
+    global snake, food, score, direction
+
+    # Reset game variables to initial values
+    canvas.delete(ALL)
+    snake = Snake()
+    food = Food()
+    score = 0
+    direction = 'down'
+    label.config(text="Score:{}".format(score))
+    next_Turn(snake, food)
+
+
+def start_game():
+    global game_paused
+    game_paused = False
+    next_Turn(snake, food)
+
+
+def pause_game():
+    global game_paused
+    game_paused = not game_paused
+    if not game_paused:
+        next_Turn(snake, food)
+
+
+
+def next_Turn(snake, food):
+    x, y = snake.coordinates[0]
+
+    if direction == "up":
+        y -= SPACE_SIZE
+    elif direction == "down":
+        y += SPACE_SIZE
+
+    elif direction == "left":
+        x -= SPACE_SIZE
+
+    elif direction == "right":
+        x += SPACE_SIZE
+
+    snake.coordinates.insert(0, (x, y))
+    square = canvas.create_rectangle(x, y, x + SPACE_SIZE, y + SPACE_SIZE, fill=SNAKE_COLOR)
+
+    snake.squares.insert(0, square)
+
+
+    if x == food.coordinates[0] and y == food.coordinates[1]:
+
+        global score
+        global game_speed
+
+        score += 1
+        if game_speed > 40:
+            game_speed -= 3
+        elif game_speed <=40:
+            game_speed =40
+
+        if score >= 50:
+           you_win()
+           time.run(1)
+           sys.exit()
+
+
+
+
+        label.config(text="Score:{}".format(score))
+        canvas.delete("food")
+
+        food = Food()
+
+    else:
+        del snake.coordinates[-1]
+        canvas.delete(snake.squares[-1])
+
+        del snake.squares[-1]
+
+    if check_collisions(snake):
+        game_over()
+
+    else:
+        window.after(game_speed, next_Turn, snake, food)
+
+
+def change_direction(new_direction):
+    global direction
+
+    if new_direction == 'left':
+        if direction != 'right':
+            direction = new_direction
+    elif new_direction == 'right':
+        if direction != 'left':
+            direction = new_direction
+    elif new_direction == 'up':
+        if direction != 'down':
+            direction = new_direction
+    elif new_direction == 'down':
+        if direction != 'up':
+            direction = new_direction
+
+
+def check_collisions(snake):
+    x, y = snake.coordinates[0]
+
+    if x < 0 or x >= GAME_WIDTH:
+        print("GAME OVER")
+        return True
+    elif y < 0 or y >= GAME_WIDTH:
+        print("GAME OVER")
+        return True
+    for body_part in snake.coordinates[1:]:
+        if x == body_part[0] and y == body_part[1]:
+            print('GAME OVER')
+            return True
+
+        return False
+
+
+def game_over():
+    canvas.delete(ALL)
+    canvas.create_text(canvas.winfo_width() / 2,
+                       canvas.winfo_height() / 2,
+                       font=('consolas', 50),
+                       text='GAME OVER, SORRY',
+                       fill="red",
+                       tag="game over")
+
+def you_win():
+    canvas.delete(ALL)
+    canvas.create_text(canvas.winfo_width() / 2,
+                       canvas.winfo_height() / 2,
+                       font=('consolas', 50),
+                       text='YOU WIN',
+                       fill="#AC94F4",
+                       tag="you win")
+
+
+window = Tk()
+window.configure(bg="black")
+window.title("Snakes in the Grass")
+def button_click():
+    label.config(text="Processing")
+    sys.exit()
+button = tk.Button(window, text="  E x i t  ", command=button_click, bg="#AC94F4", fg="BLACK", font="bold")
+button.pack()
+def button_click1():
+    label.config(text="Processing")
+    time.sleep(5)
+button1 = tk.Button(window, text="  P a u s e  ", command=button_click1, bg="#AC94F4", fg="BLACK", font="bold")
+button1.pack()
+
+window.resizable(False, False)
+
+score = 0
+direction = "down"
+
+label = Label(window, text="Score:{} ".format(score), font=('consolas', 30), bg='black', fg="#AC94F4")
+label.pack()
+
+canvas: Canvas = Canvas(window, bg=BACKGROUND_COLOR, height=GAME_HEIGHT, width=GAME_WIDTH)
+canvas.pack()
+create_game_menu()
+window.update()
+
+window_width = window.winfo_width()
+window_height = window.winfo_height()
+screen_width = window.winfo_screenwidth()
+screen_height = window.winfo_screenheight()
+x = int((screen_width / 2) - (window_width / 2))
+y = int((screen_height / 2) - (window_height / 2))
+
+window.bind('<Left>', lambda event: change_direction('left'))
+window.bind('<Right>', lambda event: change_direction('right'))
+window.bind('<Up>', lambda event: change_direction('up'))
+window.bind('<Down>', lambda event: change_direction('down'))
+
+snake = Snake()
+food = Food()
+game_text ="Hey Beautiful"
+game_text0='Hey, Beautiful'
+game_text1='I made this game in one day'
+game_text6="I hope you're doing ok."
+game_text2='Make sure to wake up and breathe.'
+game_text5="Don't let it stress you too much."
+game_text3='Give yourself grace.'
+game_text4='Remember to eat'
+
+next_Turn(snake, food)
+
+window.geometry(f"{window_width}x{window_height}+{x}+{y}")
+
+# button = canvas.create_rectangle(150, 120, 250, 180, fill="green")
+canvas.create_text(420, 25, text=game_text, fill="white", font="consolas")
+#button = canvas.create_rectangle(150, 120, 250, 180, fill="blue")
+#canvas.create_text(200, 150, text="Click Me", fill="white")
+
+
+
+
+
+
+# Load background music and play it continuously
+background_music = 'C:\\Users\\willi\\Downloads\\Lo-Fi-Lounge-Chill-Hip-Hop-CITY(chosic.com).mp3'
+pygame.mixer.music.load(background_music)
+pygame.mixer.music.play(-1)  # Play the music continuously
+
+# Main game loop
+
+window.mainloop()
